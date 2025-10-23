@@ -5,10 +5,15 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 public class JPAConexion {
-    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistenceUnitName:"jpa_db");
 
-    public static EntityManager getEntityManager() { return emf.createEntityManager();}
+    private static final EntityManagerFactory emf =
+            Persistence.createEntityManagerFactory("jpa_db");
 
-    public static void close(){emf.close();}
+    public static EntityManager getEntityManager() {
+        return emf.createEntityManager();
+    }
+
+    public static void close() {
+        emf.close();
     }
 }

@@ -9,18 +9,19 @@ import lombok.Setter;
 @Getter
 @Setter
 @NamedQueries({
-        @NamedQuery(name = "libros",
-                query = "select l from Libro l"
-        )
+        @NamedQuery(name = "libros", query = "select l from Libro l")
 })
 public class Libro {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "titulo", length = 150, nullable = false)
     private String titulo;
 
-    private int añoPub;
+    @Column(name = "anio_pub")
+    private int anioPub;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autor_id")
@@ -29,6 +30,4 @@ public class Libro {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
-}
-
 }
