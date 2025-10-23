@@ -9,14 +9,12 @@ import services.interfaces.ICRUD;
 import java.util.List;
 
 public class Main {
-
     public static final ICRUD dao = new MyDao();
-
 
     public static void insertarAutor() {
         Autor a = new Autor();
         a.setNombre("Gabriel Garcia Marquez");
-        a.setNacionalidad("Mexicana");
+        a.setNacionalidad("Mexicano");
         dao.insert(a);
 
         Autor r = new Autor();
@@ -26,28 +24,35 @@ public class Main {
     }
 
     public static void listarAutores() {
-        System.out.println("=== Autores ===");
+        System.out.println("\n== Autores ==");
         List<Autor> autores = dao.getAll("autores.All", Autor.class);
-        autores.forEach(autor -> System.out.println(autor.getNombre()));
-        System.out.println();
+        autores.forEach(autor ->
+                System.out.println(autor.getId() + " - " + autor.getNombre() +
+                        " (" + autor.getNacionalidad() + ")"));
     }
 
     public static void editarAutor() {
-        // Usa Integer porque tu ICRUD tiene Integer en findById
-        Autor a = dao.findById(1, Autor.class);
-        a.setNacionalidad("Colombiana");
-        dao.update(a);
+        Autor a = dao.findById(1, Autor.class); // si tu @Id fuera Long, cambia a 1L y la firma de findById
+        if (a != null) {
+            a.setNacionalidad("Colombiana");
+            dao.update(a);
+        } else {
+            System.out.println("Autor ID=1 no encontrado.");
+        }
     }
 
     public static void eliminarAutor() {
         Autor a = dao.findById(2, Autor.class);
-        dao.delete(a);
+        if (a != null) {
+            dao.delete(a);
+        } else {
+            System.out.println("Autor ID=2 no encontrado.");
+        }
     }
 
-
-    public static void insertarCategoria() {
+    public static void agregarCategoria() {
         Categoria c1 = new Categoria();
-        c1.setNombre("Poesia");
+        c1.setNombre("Ciencia");
         dao.insert(c1);
 
         Categoria c2 = new Categoria();
@@ -56,58 +61,57 @@ public class Main {
     }
 
     public static void listarCategorias() {
-        System.out.println("=== Categorias ===");
+        System.out.println("\n== Categorías ==");
         List<Categoria> categorias = dao.getAll("categorias.All", Categoria.class);
-        categorias.forEach(cat -> System.out.println(cat.getNombre()));
-        System.out.println();
+        categorias.forEach(c ->
+                System.out.println(c.getId() + " - " + c.getNombre()));
     }
 
+    public static void agregarLibro() {
+        // Usamos Autor ID=1 y Categoria ID=1 como ejemplo
+        Autor autor = dao.findById(1, Autor.class);
+        Categoria categoria = dao.findById(1, Categoria.class);
 
-    public static void insertarLibro() {
-        // Asegúrate de que existan estos IDs previamente
-        Autor autor1 = dao.findById(1, Autor.class);       // Gabriel
-        Autor autor2 = dao.findById(2, Autor.class);       // Ruben
-        Categoria catPoesia = dao.findById(1, Categoria.class);
-        Categoria catNovela = dao.findById(2, Categoria.class);
+        if (autor == null || categoria == null) {
+            System.out.println("Inserta primero un Autor (ID=1) y una Categoria (ID=1).");
+            return;
+        }
 
-        Libro l1 = new Libro();
-        l1.setTitulo("Cien años de soledad");
-        // Si tu entidad tiene 'anioPub' usa setAnioPub; si tiene 'añoPub', usa setAñoPub
-        // l1.setAnioPub(1967);
-        l1.setAutor(autor1);
-        l1.setCategoria(catNovela);
-        dao.insert(l1);
+        Libro l = new Libro();
+        l.setTitulo("Cien anios de soledad"); // evita 'ñ' en nombres de campos Java
+        l.setAnioPub(1967);                    // tu campo se llama 'añoPub' en la entidad
+        l.setAutor(autor);
+        l.setCategoria(categoria);
 
-        Libro l2 = new Libro();
-        l2.setTitulo("Azul…");
-        // l2.setAnioPub(1888);
-        l2.setAutor(autor2);
-        l2.setCategoria(catPoesia);
-        dao.insert(l2);
+        dao.insert(l);
     }
 
     public static void listarLibros() {
-        System.out.println("=== Libros ===");
-        List<Libro> libros = dao.getAll("libros", Libro.class);
-        libros.forEach(l -> System.out.println(l.getTitulo()));
-        System.out.println();
+        System.out.println("\n== Libros ==");
+        List<Libro> libros = dao.getAll("libros", Libro.class); // ¡ojo! el NamedQuery es "libros"
+        libros.forEach(li -> System.out.println(
+                li.getId() + " - " + li.getTitulo() + " (" + li.getAnioPub() + ")" +
+                        " | AutorID=" + (li.getAutor() != null ? li.getAutor().getId() : null) +
+                        " | CategoriaID=" + (li.getCategoria() != null ? li.getCategoria().getId() : null)
+        ));
     }
 
-
+    // =================== MAIN ===================
     public static void main(String[] args) {
+        // Autor
         insertarAutor();
         listarAutores();
-
-        insertarCategoria();
-        listarCategorias();
-
-        insertarLibro();
-        listarLibros();
-
         editarAutor();
         listarAutores();
-
         eliminarAutor();
         listarAutores();
+
+        // Categoría
+        agregarCategoria();
+        listarCategorias();
+
+        // Libro
+        agregarLibro();
+        listarLibros();
     }
 }
